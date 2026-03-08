@@ -1,0 +1,21 @@
+{
+  "name": "chatflex-mern",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "chatflex-server",
+    "chatflex-client",
+    "charflex-widget"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm --prefix chatflex-server run dev\" \"npm --prefix chatflex-client run dev\" \"npm --prefix charflex-widget run dev\"",
+    "dev:server": "npm --prefix chatflex-server run dev",
+    "dev:client": "npm --prefix chatflex-client run dev",
+    "dev:widget": "npm --prefix charflex-widget run dev",
+    "build:widget": "npm --prefix charflex-widget run build",
+    "build": "npm --prefix chatflex-client run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
