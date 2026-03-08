@@ -5,6 +5,9 @@ const { signToken } = require("../utils/jwt");
 const { createOneTimeToken, hashToken } = require("../utils/token");
 
 const googleClient = process.env.GOOGLE_CLIENT_ID ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID) : null;
+const isEmailVerificationRequired =
+  process.env.REQUIRE_EMAIL_VERIFICATION === "true" || process.env.NODE_ENV === "production";
+const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
 
 const slugify = (value) =>
   value
@@ -43,7 +46,8 @@ const register = async (req, res, next) => {
       return res.status(400).json({ message: "name, email, password, and workspaceName are required" });
     }
 
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    const normalizedEmail = normalizeEmail(email);
+    const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
       return res.status(409).json({ message: "Email already exists" });
     }
@@ -51,11 +55,11 @@ const register = async (req, res, next) => {
     const passwordHash = await User.hashPassword(password);
     const owner = await User.create({
       name,
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       passwordHash,
       role: "owner",
       status: "active",
-      isEmailVerified: false
+      isEmailVerified: !isEmailVerificationRequired
     });
 
     const slug = await uniqueWorkspaceSlug(workspaceName);
@@ -66,10 +70,27 @@ const register = async (req, res, next) => {
     });
 
     owner.workspaceId = workspace._id;
-    const verifyToken = createOneTimeToken(60 * 24);
-    owner.emailVerificationTokenHash = verifyToken.tokenHash;
-    owner.emailVerificationExpires = verifyToken.expiresAt;
+
+    let verifyToken = null;
+    if (isEmailVerificationRequired) {
+      verifyToken = createOneTimeToken(60 * 24);
+      owner.emailVerificationTokenHash = verifyToken.tokenHash;
+      owner.emailVerificationExpires = verifyToken.expiresAt;
+    } else {
+      owner.emailVerificationTokenHash = null;
+      owner.emailVerificationExpires = null;
+    }
     await owner.save();
+
+    if (!isEmailVerificationRequired) {
+      const token = signToken(owner);
+      return res.status(201).json({
+        token,
+        verificationRequired: false,
+        user: sanitizeUser(owner),
+        workspace
+      });
+    }
 
     return res.status(201).json({
       message: "Registration successful. Please verify your email before login.",
@@ -77,7 +98,7 @@ const register = async (req, res, next) => {
       user: sanitizeUser(owner),
       workspace,
       devVerificationToken:
-        process.env.NODE_ENV !== "production" ? verifyToken.plainToken : undefined
+        process.env.NODE_ENV !== "production" && verifyToken ? verifyToken.plainToken : undefined
     });
   } catch (error) {
     return next(error);
@@ -91,7 +112,7 @@ const login = async (req, res, next) => {
       return res.status(400).json({ message: "email and password are required" });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: normalizeEmail(email) });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -100,7 +121,7 @@ const login = async (req, res, next) => {
     if (!isValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    if (!user.isEmailVerified) {
+    if (isEmailVerificationRequired && !user.isEmailVerified) {
       return res.status(403).json({
         message: "Email not verified. Please verify your email first."
       });
@@ -129,7 +150,7 @@ const requestEmailVerification = async (req, res, next) => {
       return res.status(400).json({ message: "email is required" });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: normalizeEmail(email) });
     if (!user) {
       return res.json({ message: "If this email exists, a verification link has been sent." });
     }
@@ -156,7 +177,7 @@ const verifyEmail = async (req, res, next) => {
       return res.status(400).json({ message: "email and token are required" });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: normalizeEmail(email) });
     if (!user) {
       return res.status(400).json({ message: "Invalid verification token" });
     }
@@ -189,7 +210,7 @@ const forgotPassword = async (req, res, next) => {
       return res.status(400).json({ message: "email is required" });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: normalizeEmail(email) });
     if (!user) {
       return res.json({ message: "If this email exists, a reset link has been sent." });
     }
@@ -218,7 +239,7 @@ const resetPassword = async (req, res, next) => {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: normalizeEmail(email) });
     if (!user) {
       return res.status(400).json({ message: "Invalid reset token" });
     }

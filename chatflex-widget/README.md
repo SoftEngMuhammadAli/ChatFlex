@@ -14,4 +14,4 @@ Dedicated workspace for the embeddable ChatFlex widget.
 - `test/widget-test.html`: local manual test page
 
 After running `npm run build`, test page is also copied to:
-- `chatflex-server/public/widget-test.html` -> open `http://localhost:5000/widget-test.html`
+- `chatflex-server/public/widget-test.html` -> open `http://localhost:3000/widget-test.html`

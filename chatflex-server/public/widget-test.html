@@ -6,7 +6,10 @@
     <title>ChatFlex Widget Test</title>
     <style>
       body {
-        font-family: Segoe UI, Tahoma, sans-serif;
+        font-family:
+          Segoe UI,
+          Tahoma,
+          sans-serif;
         margin: 0;
         padding: 32px;
         background: linear-gradient(135deg, #f8fafc, #e2e8f0);
@@ -47,16 +50,23 @@
   <body>
     <div class="card">
       <h1>ChatFlex Widget Test Page</h1>
-      <p>Use this page to validate widget loading, message send/receive, and conversation persistence.</p>
+      <p>
+        Use this page to validate widget loading, message send/receive, and
+        conversation persistence.
+      </p>
 
       <div class="row">
-        <input id="workspaceId" placeholder="Workspace ID (Mongo ObjectId)" style="min-width: 320px" />
+        <input
+          id="workspaceId"
+          placeholder="Workspace ID (Mongo ObjectId)"
+          style="min-width: 320px"
+        />
         <button id="loadWidget">Load Widget</button>
         <button id="clearWidgetData">Clear Stored Conversation</button>
       </div>
 
       <p>Expected local server endpoint:</p>
-      <code>http://localhost:5000/widget.js</code>
+      <code>http://localhost:3000/widget.js</code>
       <p>Before testing, run server and ensure the workspace ID exists.</p>
     </div>
 
@@ -82,9 +92,9 @@
 
         const script = document.createElement("script");
         script.id = "chatflexWidgetScript";
-        script.src = "http://localhost:5000/widget.js";
+        script.src = "http://localhost:3000/widget.js";
         script.setAttribute("data-key", workspaceId);
-        script.setAttribute("data-api", "http://localhost:5000/api");
+        script.setAttribute("data-api", "http://localhost:3000/api");
         script.setAttribute("data-color", "#0f766e");
         script.setAttribute("data-position", "right");
         script.setAttribute("data-welcome", "Welcome to test support.");

@@ -48,13 +48,13 @@ npm install
 npm run dev
 ```
 
-Server: `http://localhost:5000`  
+Server: `http://localhost:3000`  
 Client: `http://localhost:5173`
-Widget test page: `http://localhost:5000/widget-test.html`
+Widget test page: `http://localhost:3000/widget-test.html`
 
 ## API Base
 
-- Base URL: `http://localhost:5000/api`
+- Base URL: `http://localhost:3000/api`
 - Health check: `GET /api/health`
 - AI response: `POST /api/ai/respond`
 - Conversation summary: `GET /api/ai/conversations/:conversationId/summary`

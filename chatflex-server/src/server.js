@@ -3,15 +3,15 @@ const http = require("http");
 const app = require("./app");
 const connectDB = require("./config/db");
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 const createNoopIo = () => ({
   to() {
     return {
-      emit() {}
+      emit() {},
     };
   },
-  on() {}
+  on() {},
 });
 
 const start = async () => {
@@ -23,8 +23,8 @@ const start = async () => {
     const { Server } = require("socket.io");
     io = new Server(httpServer, {
       cors: {
-        origin: process.env.CLIENT_URL || "*"
-      }
+        origin: process.env.CLIENT_URL || "*",
+      },
     });
 
     io.on("connection", (socket) => {
