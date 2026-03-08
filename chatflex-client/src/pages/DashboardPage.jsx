@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { io } from "socket.io-client";
 import { useAuth } from "../context/AuthContext";
 import {
   analyticsApi,
@@ -8,8 +7,6 @@ import {
   faqApi,
   workspaceApi
 } from "../services/api";
-
-const socketBaseUrl = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace("/api", "");
 
 const DashboardPage = () => {
   const { user, workspace, logout, setWorkspace } = useAuth();
@@ -94,29 +91,6 @@ const DashboardPage = () => {
   useEffect(() => {
     loadConversationMessages(selectedConversationId);
   }, [selectedConversationId]);
-
-  useEffect(() => {
-    if (!workspace?._id) return undefined;
-    const socket = io(socketBaseUrl, {
-      query: { workspaceId: workspace._id }
-    });
-
-    socket.on("conversation:new", (conversation) => {
-      setConversations((prev) => [conversation, ...prev]);
-    });
-
-    socket.on("conversation:updated", (updated) => {
-      setConversations((prev) => prev.map((c) => (c._id === updated._id ? updated : c)));
-    });
-
-    socket.on("conversation:message", ({ conversationId, message }) => {
-      if (conversationId === selectedConversationId) {
-        setMessages((prev) => [...prev, message]);
-      }
-    });
-
-    return () => socket.disconnect();
-  }, [workspace?._id, selectedConversationId]);
 
   const sendMessage = async () => {
     const trimmed = messageInput.trim();

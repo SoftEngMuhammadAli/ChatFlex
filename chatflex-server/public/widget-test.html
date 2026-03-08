@@ -65,7 +65,7 @@
       const loadBtn = document.getElementById("loadWidget");
       const clearBtn = document.getElementById("clearWidgetData");
 
-      const WIDGET_KEY_STORAGE = "charflex_widget_workspace_id";
+      const WIDGET_KEY_STORAGE = "chatflex_widget_workspace_id";
       workspaceInput.value = localStorage.getItem(WIDGET_KEY_STORAGE) || "";
 
       loadBtn.addEventListener("click", () => {
@@ -93,7 +93,7 @@
 
       clearBtn.addEventListener("click", () => {
         const workspaceId = workspaceInput.value.trim();
-        const key = "charflex_conv_" + workspaceId + "_" + window.location.host;
+        const key = "chatflex_conv_" + workspaceId + "_" + window.location.host;
         localStorage.removeItem(key);
         alert("Stored widget conversation removed.");
       });

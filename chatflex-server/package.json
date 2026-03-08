@@ -4,7 +4,7 @@
   "description": "ChatFlex MERN backend",
   "main": "src/server.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
+    "dev": "node src/server.js",
     "start": "node src/server.js"
   },
   "dependencies": {
@@ -19,8 +19,5 @@
     "morgan": "^1.10.0",
     "socket.io": "^4.8.1",
     "stripe": "^17.4.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.7"
   }
 }

@@ -6,7 +6,10 @@
     <title>ChatFlex Widget Test</title>
     <style>
       body {
-        font-family: Segoe UI, Tahoma, sans-serif;
+        font-family:
+          Segoe UI,
+          Tahoma,
+          sans-serif;
         margin: 0;
         padding: 32px;
         background: linear-gradient(135deg, #f8fafc, #e2e8f0);
@@ -47,10 +50,17 @@
   <body>
     <div class="card">
       <h1>ChatFlex Widget Test Page</h1>
-      <p>Use this page to validate widget loading, message send/receive, and conversation persistence.</p>
+      <p>
+        Use this page to validate widget loading, message send/receive, and
+        conversation persistence.
+      </p>
 
       <div class="row">
-        <input id="workspaceId" placeholder="Workspace ID (Mongo ObjectId)" style="min-width: 320px" />
+        <input
+          id="workspaceId"
+          placeholder="Workspace ID (Mongo ObjectId)"
+          style="min-width: 320px"
+        />
         <button id="loadWidget">Load Widget</button>
         <button id="clearWidgetData">Clear Stored Conversation</button>
       </div>
@@ -65,7 +75,7 @@
       const loadBtn = document.getElementById("loadWidget");
       const clearBtn = document.getElementById("clearWidgetData");
 
-      const WIDGET_KEY_STORAGE = "charflex_widget_workspace_id";
+      const WIDGET_KEY_STORAGE = "chatflex_widget_workspace_id";
       workspaceInput.value = localStorage.getItem(WIDGET_KEY_STORAGE) || "";
 
       loadBtn.addEventListener("click", () => {
@@ -93,7 +103,7 @@
 
       clearBtn.addEventListener("click", () => {
         const workspaceId = workspaceInput.value.trim();
-        const key = "charflex_conv_" + workspaceId + "_" + window.location.host;
+        const key = "chatflex_conv_" + workspaceId + "_" + window.location.host;
         localStorage.removeItem(key);
         alert("Stored widget conversation removed.");
       });

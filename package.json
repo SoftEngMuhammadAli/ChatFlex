@@ -5,17 +5,23 @@
   "workspaces": [
     "chatflex-server",
     "chatflex-client",
-    "charflex-widget"
+    "chatflex-widget"
   ],
   "scripts": {
-    "dev": "concurrently \"npm --prefix chatflex-server run dev\" \"npm --prefix chatflex-client run dev\" \"npm --prefix charflex-widget run dev\"",
+    "dev": "concurrently \"npm --prefix chatflex-server run dev\" \"npm --prefix chatflex-client run dev\" \"npm --prefix chatflex-widget run dev\"",
     "dev:server": "npm --prefix chatflex-server run dev",
     "dev:client": "npm --prefix chatflex-client run dev",
-    "dev:widget": "npm --prefix charflex-widget run dev",
-    "build:widget": "npm --prefix charflex-widget run build",
-    "build": "npm --prefix chatflex-client run build"
+    "dev:widget": "npm --prefix chatflex-widget run dev",
+    "build:widget": "npm --prefix chatflex-widget run build",
+    "build": "npm run build:widget && npm --prefix chatflex-client run build"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "@socket.io/component-emitter": "^3.1.2",
+    "bufferutil": "^4.1.0",
+    "utf-8-validate": "^6.0.6",
+    "ws": "^8.18.3"
   }
 }

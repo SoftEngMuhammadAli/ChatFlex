@@ -20,7 +20,7 @@
   var conversationId = null;
   var pollTimer = null;
   var renderedMessageIds = new Set();
-  var storageKey = "charflex_conv_" + workspaceId + "_" + window.location.host;
+  var storageKey = "chatflex_conv_" + workspaceId + "_" + window.location.host;
 
   var style = document.createElement("style");
   style.textContent =

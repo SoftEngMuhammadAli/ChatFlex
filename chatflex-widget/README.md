@@ -1,4 +1,4 @@
-# charflex-widget
+# chatflex-widget
 
 Dedicated workspace for the embeddable ChatFlex widget.
 

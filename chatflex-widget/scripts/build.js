@@ -30,15 +30,15 @@ const build = () => {
   ensureDir(path.dirname(serverPublicPath));
   fs.writeFileSync(serverPublicPath, source, "utf8");
   fs.writeFileSync(serverWidgetTestPath, testPage, "utf8");
-  console.log(`[charflex-widget] built -> ${distPath}`);
-  console.log(`[charflex-widget] synced -> ${serverPublicPath}`);
-  console.log(`[charflex-widget] synced -> ${serverWidgetTestPath}`);
+  console.log(`[chatflex-widget] built -> ${distPath}`);
+  console.log(`[chatflex-widget] synced -> ${serverPublicPath}`);
+  console.log(`[chatflex-widget] synced -> ${serverWidgetTestPath}`);
 };
 
 build();
 
 if (watchMode) {
-  console.log("[charflex-widget] watch mode enabled");
+  console.log("[chatflex-widget] watch mode enabled");
   fs.watch(path.join(rootDir, "src"), { recursive: true }, (_eventType, filename) => {
     if (!filename || !filename.endsWith(".js")) {
       return;
@@ -46,7 +46,7 @@ if (watchMode) {
     try {
       build();
     } catch (error) {
-      console.error("[charflex-widget] build failed:", error.message);
+      console.error("[chatflex-widget] build failed:", error.message);
     }
   });
 }
