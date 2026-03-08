@@ -15,8 +15,12 @@
   var position = script.getAttribute("data-position") || "right";
   var welcome =
     script.getAttribute("data-welcome") || "Hi, how can we help you today?";
+  var pollMs = Number(script.getAttribute("data-poll-ms") || 4000);
 
   var conversationId = null;
+  var pollTimer = null;
+  var renderedMessageIds = new Set();
+  var storageKey = "charflex_conv_" + workspaceId + "_" + window.location.host;
 
   var style = document.createElement("style");
   style.textContent =
@@ -32,9 +36,10 @@
     brandColor +
     ";color:#fff;border-top-left-radius:12px;border-top-right-radius:12px;font-weight:700}" +
     ".cf-messages{flex:1;overflow:auto;padding:10px;background:#f8fafc}" +
-    ".cf-msg{margin-bottom:8px;padding:8px 10px;border-radius:10px;max-width:85%;font-size:14px;line-height:1.4}" +
+    ".cf-msg{margin-bottom:8px;padding:8px 10px;border-radius:10px;max-width:85%;font-size:14px;line-height:1.4;word-break:break-word}" +
     ".cf-msg.visitor{background:#dbeafe;margin-left:auto}" +
     ".cf-msg.agent,.cf-msg.ai{background:#e5e7eb}" +
+    ".cf-msg.system{background:#fee2e2}" +
     ".cf-form{display:grid;gap:8px;padding:10px;border-top:1px solid #eee}" +
     ".cf-input{width:100%;padding:8px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}" +
     ".cf-row{display:flex;gap:8px}" +
@@ -70,7 +75,10 @@
   var emailEl = panel.querySelector("#cfEmail");
   var sendEl = panel.querySelector("#cfSend");
 
-  var appendMessage = function (senderType, content) {
+  var appendMessage = function (senderType, content, messageId) {
+    if (messageId && renderedMessageIds.has(messageId)) return;
+    if (messageId) renderedMessageIds.add(messageId);
+
     var row = document.createElement("div");
     row.className = "cf-msg " + senderType;
     row.textContent = content;
@@ -78,10 +86,57 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
   };
 
-  appendMessage("agent", welcome);
+  appendMessage("agent", welcome, "welcome-message");
+
+  var setConversationId = function (id) {
+    conversationId = id || null;
+    if (conversationId) {
+      localStorage.setItem(storageKey, conversationId);
+    } else {
+      localStorage.removeItem(storageKey);
+    }
+  };
+
+  var fetchMessages = function () {
+    if (!conversationId) return Promise.resolve();
+
+    return fetch(
+      apiBase +
+        "/conversations/public/" +
+        encodeURIComponent(workspaceId) +
+        "/" +
+        encodeURIComponent(conversationId) +
+        "/messages",
+    )
+      .then(function (res) {
+        if (res.status === 404) {
+          setConversationId(null);
+          return [];
+        }
+        if (!res.ok) throw new Error("Failed to fetch messages");
+        return res.json();
+      })
+      .then(function (messages) {
+        messages.forEach(function (message) {
+          appendMessage(
+            message.senderType || "agent",
+            message.content || "",
+            message._id || null,
+          );
+        });
+      })
+      .catch(function () {
+        // Non-fatal; continue polling.
+      });
+  };
+
+  var startPolling = function () {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(fetchMessages, pollMs);
+  };
 
   var createConversation = function (firstMessage) {
-    return fetch(apiBase + "/conversations/public/" + workspaceId, {
+    return fetch(apiBase + "/conversations/public/" + encodeURIComponent(workspaceId), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -98,8 +153,24 @@
         return res.json();
       })
       .then(function (data) {
-        conversationId = data.conversationId;
+        setConversationId(data.conversationId);
       });
+  };
+
+  var sendConversationMessage = function (text) {
+    return fetch(
+      apiBase +
+        "/conversations/public/" +
+        encodeURIComponent(workspaceId) +
+        "/" +
+        encodeURIComponent(conversationId) +
+        "/messages",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: text }),
+      },
+    );
   };
 
   var sendMessage = function () {
@@ -110,38 +181,46 @@
     inputEl.value = "";
 
     if (!conversationId) {
-      createConversation(text).catch(function () {
-        appendMessage(
-          "agent",
-          "We could not connect right now. Please try again.",
-        );
-      });
+      createConversation(text)
+        .then(fetchMessages)
+        .catch(function () {
+          appendMessage(
+            "system",
+            "We could not connect right now. Please try again.",
+          );
+        });
       return;
     }
 
-    fetch(
-      apiBase +
-        "/conversations/public/" +
-        workspaceId +
-        "/" +
-        conversationId +
-        "/messages",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: text }),
-      },
-    ).catch(function () {
-      appendMessage("agent", "Message failed to send.");
-    });
+    sendConversationMessage(text)
+      .then(function (res) {
+        if (!res.ok) throw new Error("Send failed");
+      })
+      .catch(function () {
+        appendMessage("system", "Message failed to send.");
+      });
+  };
+
+  var restoreConversation = function () {
+    var savedConversationId = localStorage.getItem(storageKey);
+    if (!savedConversationId) return;
+    setConversationId(savedConversationId);
+    fetchMessages();
   };
 
   launcher.addEventListener("click", function () {
-    panel.style.display = panel.style.display === "flex" ? "none" : "flex";
+    var shouldOpen = panel.style.display !== "flex";
+    panel.style.display = shouldOpen ? "flex" : "none";
+    if (shouldOpen) {
+      fetchMessages();
+    }
   });
 
   sendEl.addEventListener("click", sendMessage);
   inputEl.addEventListener("keydown", function (event) {
     if (event.key === "Enter") sendMessage();
   });
+
+  restoreConversation();
+  startPolling();
 })();

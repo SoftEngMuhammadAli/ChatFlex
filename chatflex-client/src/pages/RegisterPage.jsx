@@ -13,16 +13,26 @@ const RegisterPage = () => {
     workspaceName: ""
   });
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setMessage("");
     setSubmitting(true);
     try {
       const { data } = await authApi.register(form);
-      login(data);
-      navigate("/dashboard");
+      if (data.token) {
+        login(data);
+        navigate("/dashboard");
+        return;
+      }
+      setMessage(
+        data.devVerificationToken
+          ? `Account created. Verify your email. Dev token: ${data.devVerificationToken}`
+          : data.message || "Account created. Verify your email before login."
+      );
     } catch (requestError) {
       setError(requestError.response?.data?.message || "Registration failed");
     } finally {
@@ -68,12 +78,13 @@ const RegisterPage = () => {
         />
 
         {error && <div className="error-text">{error}</div>}
+        {message && <div style={{ background: "#ecfeff", border: "1px solid #99f6e4", padding: 8 }}>{message}</div>}
         <button type="submit" disabled={submitting}>
           {submitting ? "Creating..." : "Create Workspace"}
         </button>
 
         <small>
-          Already have an account? <Link to="/login">Sign in</Link>
+          Already have an account? <Link to="/login">Sign in</Link> | <Link to="/verify-email">Verify email</Link>
         </small>
       </form>
     </main>

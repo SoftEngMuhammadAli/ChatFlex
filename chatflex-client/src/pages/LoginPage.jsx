@@ -53,7 +53,8 @@ const LoginPage = () => {
         </button>
 
         <small>
-          No account? <Link to="/register">Create workspace</Link>
+          No account? <Link to="/register">Create workspace</Link> |{" "}
+          <Link to="/verify-email">Verify email</Link> | <Link to="/reset-password">Reset password</Link>
         </small>
       </form>
     </main>
