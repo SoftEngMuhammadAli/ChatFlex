@@ -224,6 +224,32 @@ const workspaceAiSettingsSchema = new mongoose.Schema(
   { _id: false },
 );
 
+const workspaceOidcSettingsSchema = new mongoose.Schema(
+  {
+    enabled: { type: Boolean, default: false },
+    issuerUrl: { type: String, trim: true, default: "" },
+    clientId: { type: String, trim: true, default: "" },
+    clientSecret: { type: String, trim: true, default: "" },
+    allowAutoProvision: { type: Boolean, default: true },
+    defaultRole: {
+      type: String,
+      enum: ["viewer", "agent", "admin"],
+      default: "viewer",
+    },
+  },
+  { _id: false },
+);
+
+const workspaceAuthSettingsSchema = new mongoose.Schema(
+  {
+    oidc: {
+      type: workspaceOidcSettingsSchema,
+      default: () => ({}),
+    },
+  },
+  { _id: false },
+);
+
 const workspaceSuspensionSchema = new mongoose.Schema(
   {
     isSuspended: { type: Boolean, default: false },
@@ -294,6 +320,10 @@ const WorkspaceSchema = new mongoose.Schema(
     },
     aiSettings: {
       type: workspaceAiSettingsSchema,
+      default: () => ({}),
+    },
+    authSettings: {
+      type: workspaceAuthSettingsSchema,
       default: () => ({}),
     },
     status: {

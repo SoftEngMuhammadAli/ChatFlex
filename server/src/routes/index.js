@@ -15,6 +15,9 @@ import faqRoutes from "./faq.routes.js";
 import automationRoutes from "./automation.routes.js";
 import integrationRoutes from "./integration.routes.js";
 import superAdminRoutes from "./superAdmin.routes.js";
+import channelRoutes from "./channel.routes.js";
+import privacyRoutes from "./privacy.routes.js";
+import ssoRoutes from "./sso.routes.js";
 
 const router = express.Router();
 
@@ -59,6 +62,9 @@ router.use("/direct-messages", directMessageRoutes);
 router.use("/faq", faqRoutes);
 router.use("/automation", automationRoutes);
 router.use("/integrations", integrationRoutes);
+router.use("/channels", channelRoutes);
+router.use("/privacy", privacyRoutes);
+router.use("/sso", ssoRoutes);
 router.use("/super-admin", superAdminRoutes);
 
 export default router;

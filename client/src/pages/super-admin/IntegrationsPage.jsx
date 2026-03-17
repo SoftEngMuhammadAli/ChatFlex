@@ -38,9 +38,20 @@ const IntegrationsPage = () => {
     eventsCsv: "new_message,conversation_resolved,lead_converted",
     secret: "",
     token: "",
+    phoneNumberId: "",
+    pageId: "",
+    department: "",
+    zendeskSubdomain: "",
+    zendeskEmail: "",
   });
   const [localError, setLocalError] = useState("");
   const [testEventById, setTestEventById] = useState({});
+
+  const isMetaChannel = (type) =>
+    type === "whatsapp" || type === "facebook-messenger";
+
+  const isProviderNative = (type) =>
+    isMetaChannel(type) || type === "hubspot" || type === "zendesk";
 
   const sortedItems = useMemo(
     () =>
@@ -64,7 +75,8 @@ const IntegrationsPage = () => {
       setLocalError("Integration name is required");
       return;
     }
-    if (!String(form.endpointUrl || "").trim()) {
+    const type = String(form.type || "").trim();
+    if (!isProviderNative(type) && !String(form.endpointUrl || "").trim()) {
       setLocalError("Endpoint URL is required");
       return;
     }
@@ -72,11 +84,28 @@ const IntegrationsPage = () => {
       await dispatch(
         createIntegration({
           name,
-          type: form.type,
+          type,
           endpointUrl: String(form.endpointUrl || "").trim(),
           events: parseCsv(form.eventsCsv),
           secret: String(form.secret || "").trim(),
           token: String(form.token || "").trim(),
+          settings: {
+            ...(type === "whatsapp"
+              ? { phoneNumberId: String(form.phoneNumberId || "").trim() }
+              : {}),
+            ...(type === "facebook-messenger"
+              ? { pageId: String(form.pageId || "").trim() }
+              : {}),
+            ...(String(form.department || "").trim()
+              ? { department: String(form.department || "").trim() }
+              : {}),
+            ...(type === "zendesk"
+              ? {
+                  subdomain: String(form.zendeskSubdomain || "").trim(),
+                  email: String(form.zendeskEmail || "").trim(),
+                }
+              : {}),
+          },
           enabled: true,
         }),
       ).unwrap();
@@ -86,6 +115,11 @@ const IntegrationsPage = () => {
         endpointUrl: "",
         secret: "",
         token: "",
+        phoneNumberId: "",
+        pageId: "",
+        department: "",
+        zendeskSubdomain: "",
+        zendeskEmail: "",
       }));
       setLocalError("");
     } catch (submitError) {
@@ -165,7 +199,11 @@ const IntegrationsPage = () => {
             onChange={(event) =>
               setForm((prev) => ({ ...prev, endpointUrl: event.target.value }))
             }
-            placeholder="https://example.com/webhook"
+            placeholder={
+              isProviderNative(form.type)
+                ? "Not required for this provider"
+                : "https://example.com/webhook"
+            }
             className="md:col-span-2 rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
           />
           <input
@@ -179,15 +217,73 @@ const IntegrationsPage = () => {
           <input
             value={form.secret}
             onChange={(event) => setForm((prev) => ({ ...prev, secret: event.target.value }))}
-            placeholder="Secret (optional)"
+            placeholder={
+              isMetaChannel(form.type) ? "Verify token (Meta)" : "Secret (optional)"
+            }
             className="rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
           />
           <input
             value={form.token}
             onChange={(event) => setForm((prev) => ({ ...prev, token: event.target.value }))}
-            placeholder="Token (optional)"
+            placeholder={
+              form.type === "hubspot"
+                ? "HubSpot private app token"
+                : form.type === "zendesk"
+                  ? "Zendesk API token"
+                  : isMetaChannel(form.type)
+                    ? "Access token (Meta)"
+                    : "Token (optional)"
+            }
             className="rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
           />
+          {form.type === "whatsapp" ? (
+            <input
+              value={form.phoneNumberId}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, phoneNumberId: event.target.value }))
+              }
+              placeholder="WhatsApp phone number ID"
+              className="md:col-span-2 rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
+            />
+          ) : null}
+          {form.type === "facebook-messenger" ? (
+            <input
+              value={form.pageId}
+              onChange={(event) => setForm((prev) => ({ ...prev, pageId: event.target.value }))}
+              placeholder="Facebook Page ID"
+              className="md:col-span-2 rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
+            />
+          ) : null}
+          {isMetaChannel(form.type) ? (
+            <input
+              value={form.department}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, department: event.target.value }))
+              }
+              placeholder="Department routing key (optional)"
+              className="md:col-span-2 rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
+            />
+          ) : null}
+          {form.type === "zendesk" ? (
+            <>
+              <input
+                value={form.zendeskSubdomain}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, zendeskSubdomain: event.target.value }))
+                }
+                placeholder="Zendesk subdomain (e.g. acme)"
+                className="md:col-span-2 rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
+              />
+              <input
+                value={form.zendeskEmail}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, zendeskEmail: event.target.value }))
+                }
+                placeholder="Zendesk agent email"
+                className="md:col-span-2 rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
+              />
+            </>
+          ) : null}
           <button
             type="submit"
             disabled={actionLoading}
@@ -221,6 +317,12 @@ const IntegrationsPage = () => {
                 result: null,
                 error: null,
               };
+              const webhookPath =
+                item?.type === "whatsapp"
+                  ? `/api/channels/whatsapp/${id}/webhook`
+                  : item?.type === "facebook-messenger"
+                    ? `/api/channels/facebook-messenger/${id}/webhook`
+                    : "";
 
               return (
                 <div
@@ -235,6 +337,11 @@ const IntegrationsPage = () => {
                       <p className="text-xs text-slate-500 dark:text-slate-400">
                         {item?.type} | {item?.endpointUrl}
                       </p>
+                      {webhookPath ? (
+                        <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                          Webhook URL: <span className="font-mono">{webhookPath}</span>
+                        </p>
+                      ) : null}
                     </div>
                     <div className="flex items-center gap-2">
                       <button

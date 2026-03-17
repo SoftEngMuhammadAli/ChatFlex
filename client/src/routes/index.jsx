@@ -9,6 +9,7 @@ const VerifyEmail = lazy(() => import("../pages/auth/VerifyEmail"));
 const ForgotPasswordPage = lazy(() => import("../pages/auth/ForgotPassword"));
 const ResetPasswordPage = lazy(() => import("../pages/auth/ResetPassword"));
 const AcceptTeamInvite = lazy(() => import("../pages/team/AcceptTeamInvite"));
+const OidcCallback = lazy(() => import("../pages/auth/OidcCallback"));
 const RoleBasedRoutingAccess = lazy(() => import("./RoleBaseRoutingAccess"));
 const DashboardLayout = lazy(
   () => import("../components/layout/DashboardLayout"),
@@ -53,6 +54,7 @@ const MainRouteIndex = () => {
           path="/reset-password"
           element={lazyElement(<ResetPasswordPage />)}
         />
+        <Route path="/sso/oidc/callback" element={lazyElement(<OidcCallback />)} />
 
         <Route
           path="/"

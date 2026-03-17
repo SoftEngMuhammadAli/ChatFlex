@@ -1,8 +1,20 @@
 import { Integration } from "../models/integration.model.js";
 import { catchAsyncHandler } from "../middleware/error.middleware.js";
 import { dispatchIntegrationById } from "../services/integration.service.js";
+import { encryptSecret } from "../utils/crypto.util.js";
 
 const normalizeText = (value) => String(value || "").trim();
+
+const sanitizeForResponse = (integration) => {
+  if (!integration) return integration;
+  const obj =
+    typeof integration.toObject === "function"
+      ? integration.toObject()
+      : { ...integration };
+  if (Object.prototype.hasOwnProperty.call(obj, "secret")) obj.secret = "";
+  if (Object.prototype.hasOwnProperty.call(obj, "token")) obj.token = "";
+  return obj;
+};
 
 const resolveWorkspaceContext = (req) => {
   const isSuperAdmin = String(req.user?.role || "") === "super-admin";
@@ -56,8 +68,8 @@ const sanitizeIntegrationPayload = (body = {}) => {
     name: normalizeText(body.name),
     enabled: body.enabled !== false,
     endpointUrl: normalizeText(body.endpointUrl),
-    secret: normalizeText(body.secret),
-    token: normalizeText(body.token),
+    secret: encryptSecret(normalizeText(body.secret)),
+    token: encryptSecret(normalizeText(body.token)),
     headers: body.headers && typeof body.headers === "object" ? body.headers : {},
     events: normalizeEvents(body.events),
     settings:
@@ -81,7 +93,9 @@ export const getIntegrations = catchAsyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
     .lean();
 
-  return res.status(200).json({ data: integrations });
+  return res
+    .status(200)
+    .json({ data: integrations.map((item) => sanitizeForResponse(item)) });
 });
 
 export const createIntegration = catchAsyncHandler(async (req, res) => {
@@ -98,7 +112,7 @@ export const createIntegration = catchAsyncHandler(async (req, res) => {
     ...payload,
   });
 
-  return res.status(201).json({ data: integration });
+  return res.status(201).json({ data: sanitizeForResponse(integration) });
 });
 
 export const updateIntegration = catchAsyncHandler(async (req, res) => {
@@ -119,10 +133,10 @@ export const updateIntegration = catchAsyncHandler(async (req, res) => {
     payload.endpointUrl = normalizeText(req.body.endpointUrl);
   }
   if (Object.prototype.hasOwnProperty.call(req.body, "secret")) {
-    payload.secret = normalizeText(req.body.secret);
+    payload.secret = encryptSecret(normalizeText(req.body.secret));
   }
   if (Object.prototype.hasOwnProperty.call(req.body, "token")) {
-    payload.token = normalizeText(req.body.token);
+    payload.token = encryptSecret(normalizeText(req.body.token));
   }
   if (Object.prototype.hasOwnProperty.call(req.body, "headers")) {
     payload.headers =
@@ -150,7 +164,7 @@ export const updateIntegration = catchAsyncHandler(async (req, res) => {
     return res.status(404).json({ message: "Integration not found" });
   }
 
-  return res.status(200).json({ data: integration });
+  return res.status(200).json({ data: sanitizeForResponse(integration) });
 });
 
 export const deleteIntegration = catchAsyncHandler(async (req, res) => {
