@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatFlex Widget Local Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-[#f7fafc] text-[#0f172a] p-10 font-sans">
+    <div class="max-w-190 bg-white border border-[#e2e8f0] rounded-xl p-6">
+      <h1 class="text-2xl font-bold mt-0 mb-4">
+        ChatFlex Human Widget Test Page
+      </h1>
+      <p class="mb-4">
+        This page loads the widget script from
+        <code class="bg-[#f1f5f9] px-1.5 py-0.5 rounded-md"
+          >http://localhost:5000/widget/chatflex-widget.js</code
+        >
+        and initializes it in script mode.
+      </p>
+      <p class="mb-4 text-sm text-slate-600">
+        <code class="bg-[#f1f5f9] px-1.5 py-0.5 rounded-md">
+          Preferred flow: create widget in dashboard, click <b>Copy Script</b>,
+          paste on your site.
+        </code>
+      </p>
+      <p>
+        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Qui animi
+        excepturi adipisci dicta numquam repudiandae voluptate voluptas amet
+        omnis quos dolor, eius earum facilis pariatur? Odio saepe cupiditate
+        molestias rerum?
+      </p>
+    </div>
+
+    <script src="http://localhost:5000/widget/chatflex-widget.js"></script>
+    <script>
+      window.ChatFlexWidget.init({
+        apiHost: "http://localhost:5000",
+        widgetId: "69b140dacec4fd80a920627a",
+        widgetToken: "8e303be917ddd9763c50aa6e334eb6ba3bfc41bbce9cad11",
+      });
+    </script>
+  </body>
+</html>

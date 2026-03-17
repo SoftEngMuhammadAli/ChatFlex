@@ -3,25 +3,20 @@
   "private": true,
   "version": "1.0.0",
   "workspaces": [
-    "chatflex-server",
-    "chatflex-client",
-    "chatflex-widget"
+    "server",
+    "client",
+    "widget"
   ],
   "scripts": {
-    "dev": "concurrently \"npm --prefix chatflex-server run dev\" \"npm --prefix chatflex-client run dev\" \"npm --prefix chatflex-widget run dev\"",
-    "dev:server": "npm --prefix chatflex-server run dev",
-    "dev:client": "npm --prefix chatflex-client run dev",
-    "dev:widget": "npm --prefix chatflex-widget run dev",
-    "build:widget": "npm --prefix chatflex-widget run build",
-    "build": "npm run build:widget && npm --prefix chatflex-client run build"
+    "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix client run dev\" \"npm --prefix widget run dev\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "dev:widget": "npm --prefix widget run dev",
+    "build:widget": "npm --prefix widget run build",
+    "build:client": "npm --prefix client run build",
+    "build": "npm run build:widget && npm run build:client"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
-  },
-  "dependencies": {
-    "@socket.io/component-emitter": "^3.1.2",
-    "bufferutil": "^4.1.0",
-    "utf-8-validate": "^6.0.6",
-    "ws": "^8.18.3"
   }
 }

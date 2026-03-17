@@ -1,0 +1,62 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: chatflex_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    container_name: chatflex_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  api:
+    image: node:20-alpine
+    container_name: chatflex_api
+    working_dir: /app/server
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      MONGO_URI: mongodb://mongo:27017/chatflex
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - /app/server/node_modules
+    command: sh -c "npm --prefix /app/server install && npm --prefix /app/server run start"
+    depends_on:
+      - mongo
+      - redis
+
+  worker:
+    image: node:20-alpine
+    container_name: chatflex_worker
+    working_dir: /app/server
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      MONGO_URI: mongodb://mongo:27017/chatflex
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - /app/server/node_modules
+    command: sh -c "npm --prefix /app/server install && npm --prefix /app/server run worker"
+    depends_on:
+      - api
+      - redis
+
+volumes:
+  mongo_data:
+

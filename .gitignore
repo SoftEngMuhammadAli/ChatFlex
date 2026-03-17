@@ -1,6 +1,26 @@
-node_modules
-dist
-.env
-.DS_Store
+## Node / JS
+node_modules/
 npm-debug.log*
-yarn-error.log
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+## Build outputs
+dist/
+build/
+.vite/
+coverage/
+
+## Env / secrets
+.env
+.env.*
+!.env.example
+
+## OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+## Uploads / runtime
+uploads/
+

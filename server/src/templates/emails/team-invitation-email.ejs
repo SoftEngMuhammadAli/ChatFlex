@@ -1,0 +1,160 @@
+<h2
+  style="
+    margin: 0 0 16px;
+    color: #0f172a;
+    font-size: 24px;
+    line-height: 1.3;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  "
+>
+  You're invited to join ChatFlex
+</h2>
+
+<p style="margin: 0 0 20px; color: #334155; font-size: 16px; line-height: 1.6">
+  Hello <strong style="color: #0f172a"><%= name %></strong>,
+</p>
+
+<div
+  style="
+    margin: 0 0 24px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+  "
+>
+  <p
+    style="margin: 0 0 12px; color: #334155; font-size: 16px; line-height: 1.6"
+  >
+    <strong style="color: #0f172a; font-size: 17px"><%= inviterName %></strong>
+    has invited you to join
+    <strong style="color: #0f172a"><%= workspaceName %></strong> as
+    <span
+      style="
+        display: inline-block;
+        padding: 2px 10px;
+        background: #e0f2f1;
+        color: #0f766e;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 20px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+      "
+      ><%= role %></span
+    >.
+  </p>
+</div>
+
+<p style="margin: 0 0 24px; color: #334155; font-size: 16px; line-height: 1.6">
+  Click the button below to accept the invitation and complete account setup.
+  This gives you access to your new workspace and all its features.
+</p>
+
+<table
+  role="presentation"
+  cellpadding="0"
+  cellspacing="0"
+  style="margin: 0 0 24px"
+  width="100%"
+>
+  <tr>
+    <td align="center">
+      <table
+        role="presentation"
+        cellpadding="0"
+        cellspacing="0"
+        style="display: inline-block"
+      >
+        <tr>
+          <td
+            align="center"
+            style="
+              border-radius: 12px;
+              background: #0f766e;
+              box-shadow: 0 4px 6px -1px rgba(15, 118, 110, 0.2);
+            "
+          >
+            <a
+              href="<%= invitationUrl %>"
+              style="
+                display: inline-block;
+                padding: 14px 32px;
+                color: #ffffff;
+                font-size: 16px;
+                font-weight: 600;
+                text-decoration: none;
+                line-height: 1;
+                border-radius: 12px;
+                background: #0f766e;
+              "
+              >Accept Invitation →</a
+            >
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<div
+  style="
+    margin: 0 0 24px;
+    padding: 16px;
+    background: #fff7ed;
+    border-left: 4px solid #f97316;
+    border-radius: 8px;
+  "
+>
+  <p style="margin: 0; color: #7b341e; font-size: 14px; line-height: 1.5">
+    ⚡ This invitation link will expire in <strong>72 hours</strong> for
+    security reasons.
+  </p>
+</div>
+
+<p style="margin: 0 0 8px; color: #64748b; font-size: 14px; line-height: 1.6">
+  Having trouble with the button? Copy and paste this link into your browser:
+</p>
+
+<table
+  role="presentation"
+  cellpadding="0"
+  cellspacing="0"
+  style="margin: 0 0 16px"
+  width="100%"
+>
+  <tr>
+    <td
+      style="
+        padding: 12px 16px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        word-break: break-all;
+      "
+    >
+      <a
+        href="<%= invitationUrl %>"
+        style="
+          color: #0f766e;
+          font-size: 14px;
+          text-decoration: none;
+          font-family: monospace;
+        "
+        ><%= invitationUrl %></a
+      >
+    </td>
+  </tr>
+</table>
+
+<hr style="margin: 32px 0 24px; border: none; border-top: 1px solid #e2e8f0" />
+
+<p style="margin: 0 0 8px; color: #64748b; font-size: 13px; line-height: 1.5">
+  <strong style="color: #334155">Didn't expect this invitation?</strong> You can
+  safely ignore this email. Only people with access to this email address can
+  accept the invitation.
+</p>
+<p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.5">
+  Questions? Visit our
+  <a href="#" style="color: #0f766e; text-decoration: underline">Help Center</a>
+  or contact support.
+</p>
